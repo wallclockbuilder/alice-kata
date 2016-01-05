@@ -71,6 +71,8 @@ func first(wordFrequencyList []word, n int) []word {
 }
 
 func main() {
+	// Print out top 7 frequent words
+
 	dict := make(map[string]int)
 	f, err := os.Open("alice-in-wonderland.txt")
 	assertNil(err)
