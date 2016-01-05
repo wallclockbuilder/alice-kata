@@ -23,6 +23,8 @@ func (l byCount) Less(i, j int) bool { return l[i].count < l[j].count }
 func (l byCount) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 func insert(dict map[string]int, word string) map[string]int {
+	// insert adds the input word to the input dictionary
+	// and return the modified dictionary.
 	if _, ok := dict[word]; !ok {
 		dict[word] = 1
 		return dict
@@ -31,44 +33,68 @@ func insert(dict map[string]int, word string) map[string]int {
 	return dict
 }
 
-func extractWordsFromLine(s string) []string {
+func words(s string) []string {
+	// words returns a slice of the words from the input string.
 	regex := regexp.MustCompile("\\w+")
 	words := regex.FindAllString(s, -1)
 	return words
 }
 
-func main() {
-	dict := make(map[string]int)
-	list := []word{}
-	f, err := os.Open("alice-in-wonderland.txt")
+func assertNil(err error) {
+	// assertNil makes sure theres no error. log panics when there is.
 	if err != nil {
 		log.Panic(err)
 	}
+}
+
+func list(m map[string]int) []word {
+	// list converts the supplied map to a slice of words
+	var list []word
+	for k, v := range m {
+		list = append(list, word{k, v})
+	}
+	return list
+}
+
+func dictionary(dict map[string]int, words []string) map[string]int {
+	// dictionary adds the words in the supplied list to the
+	// supplied dictionary and returns the dictionary.
+	for _, w := range words {
+		dict = insert(dict, w)
+	}
+	return dict
+}
+
+func first(wordFrequencyList []word, n int) []word {
+	// first returns the first n words from supplied list.
+	return wordFrequencyList[:n]
+}
+
+func main() {
+	// Print out top 7 frequent words
+
+	dict := make(map[string]int)
+	f, err := os.Open("alice-in-wonderland.txt")
+	assertNil(err)
+
 	r := bufio.NewReader(f)
-
 	for {
-		switch s, err := r.ReadString('\n'); err {
+		switch line, err := r.ReadString('\n'); err {
 		case nil:
-			words := extractWordsFromLine(s)
-
-			for _, w := range words {
-				dict = insert(dict, w)
-			}
-
+			dict = dictionary(dict, words(line))
 		case io.EOF:
-			fmt.Println("EOF")
-			//convert dict to slice for sorting in O(n) time.
-			// slices are horrible for sorting
-			for k, v := range dict {
-				list = append(list, word{k, v})
-			}
+			// convert dict to slice for sorting in O(n) time.
+			// maps are horrible for sorting because the go
+			// runtime randomizes map iteration order.
+			// So we use a different data structure(slice) to maintain order.
+			wordFrequencyList := list(dict)
 
-			sort.Sort(sort.Reverse(byCount(list)))
+			// sort orders the slice from smallest to biggest
+			// sort.reverse ensures an ordering from big to small
+			sort.Sort(sort.Reverse(byCount(wordFrequencyList)))
 
-			// print out top 7 most common words
-			fmt.Println(list[:7])
+			fmt.Println(first(wordFrequencyList, 7))
 			return
-
 		default:
 			return
 		}
