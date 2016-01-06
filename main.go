@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 type word struct {
@@ -60,7 +61,7 @@ func dictionary(dict map[string]int, words []string) map[string]int {
 	// dictionary adds the words in the supplied list to the
 	// supplied dictionary and returns the dictionary.
 	for _, w := range words {
-		dict = insert(dict, w)
+		dict = insert(dict, strings.ToLower(w))
 	}
 	return dict
 }
