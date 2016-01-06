@@ -19,6 +19,8 @@ type word struct {
 
 type byCount []word
 
+// func Len(), func Less, func Swap are needed so that byCount implements
+// the requisite sort.Interface for type word{}
 func (l byCount) Len() int           { return len(l) }
 func (l byCount) Less(i, j int) bool { return l[i].count < l[j].count }
 func (l byCount) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
@@ -72,7 +74,7 @@ func first(wordFrequencyList []word, n int) []word {
 }
 
 func main() {
-	// Print out top 7 frequent words
+	// main prints out top 7 frequent words of input file.
 
 	dict := make(map[string]int)
 	f, err := os.Open("alice-in-wonderland.txt")
